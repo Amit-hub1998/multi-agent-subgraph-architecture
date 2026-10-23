@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Multi-Agent Systems · Interactive visuals</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+.list{display:grid;gap:8px;margin-top:12px}
+.list a{display:block;padding:12px 14px;border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--text-primary);background:var(--surface-2)}
+.list a:hover{border-color:var(--border-accent)}
+.list small{display:block;color:var(--text-secondary);margin-top:2px}
+h2{font-size:16px;font-weight:600;margin:24px 0 4px}
+</style></head>
+<body><main>
+<h1>Multi-Agent Systems &amp; Subgraph Architecture</h1>
+<p class="lead">Interactive versions of every visual in slides 1–6. The PowerPoint (with Morph) is in <code>output/</code>.</p>
+<h2>Slides</h2>
+<div class="list">
+<a href="slide1_parent_graph.html">Slide 1 · Parent graph of subgraphs<small>Supervisor → agent subgraphs → checker</small></a>
+<a href="slide2_bau_happy_vs_chaos.html">Slide 2 · Why Single Agents Fail<small>BAU defect agent: happy flow vs chaotic flow, animated</small></a>
+<a href="slide3_context_tape.html">Slide 3 · Thinking + Acting + Checking<small>Context tape: mixed vs sorted by job</small></a>
+<a href="slide4_failure_modes.html">Slide 4 · Failure Modes<small>Six generic failure modes in three families</small></a>
+<a href="slide5_monolith_to_multi_agent.html">Slide 5 · Root Cause<small>Fix the monolith one principle at a time (6 steps)</small></a>
+<a href="slide6_three_layouts.html">Slide 6 · Core Idea<small>Supervisor, pipeline, peer swarm</small></a>
+</div>
+<h2>Supporting material</h2>
+<div class="list">
+<a href="extra_finish_reason_loop.html">How finish_reason drives an agent loop</a>
+<a href="extra_launch_post_loop.html">Launch post workflow routed by finish_reason (Claude + Gemini)</a>
+<a href="extra_slide4_trace_backup.html">Agent trace of the chaotic run (slide 4 appendix)</a>
+</div>
+</main></body></html>

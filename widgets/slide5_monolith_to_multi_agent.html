@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slide 5 · Root cause</title>
+<link rel="stylesheet" href="vendor/tabler-icons.min.css">
+<link rel="stylesheet" href="_base.css">
+<style>
+.nav{display:flex;gap:8px;align-items:center;margin:4px 0 6px}
+.nav button{padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border-strong);background:var(--surface-1);color:var(--text-primary);font:inherit;font-size:14px;cursor:pointer}
+.nav button:disabled{opacity:.4;cursor:default}
+#lbl{flex:1;text-align:center;font-size:14px;font-weight:600;color:var(--text-secondary)}
+#cap{font-size:15px;color:var(--text-primary);margin-top:6px;min-height:44px}
+.tr{transition:transform .7s ease,opacity .5s ease}
+@media (prefers-reduced-motion:reduce){.tr{transition:none}}
+</style></head>
+<body><main>
+<a class="back" href="index.html">← All visuals</a>
+<h1>Slide 5 · Root Cause: A System Design Problem</h1>
+<p class="lead">Fix the monolith one principle at a time. Each click changes one thing; the last frame is a multi-agent system.</p>
+<div class="nav"><button id="pv" aria-label="Previous step"><i class="ti ti-chevron-left"></i></button><div id="lbl"></div><button id="nx">Next <i class="ti ti-chevron-right"></i></button></div>
+<svg id="g" width="100%" viewBox="0 0 680 360" role="img"><title>Single agent transforming into a multi-agent system</title><desc>Step-by-step application of five design principles.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs></svg>
+<div id="cap"></div>
+<script>
+const NS='http://www.w3.org/2000/svg',XH='http://www.w3.org/1999/xhtml',svg=document.getElementById('g');
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e;}
+function icon(p,x,y,ic,sz,col){const fo=el('foreignObject',{x:x-16,y:y-16,width:32,height:32},p);const d=document.createElementNS(XH,'div');d.setAttribute('style','font-size:'+sz+'px;line-height:32px;text-align:center;color:'+(col||'var(--text-primary)'));d.innerHTML='<i class="ti '+ic+'" aria-hidden="true"></i>';fo.appendChild(d);}
+function grp(){return el('g',{class:'tr'});}
+function pill(x,y,txt,fill,stroke){const g=grp();const w=txt.length*7+20;el('rect',{x:x-w/2,y:y-10,width:w,height:20,rx:10,style:'fill:'+fill+';stroke:'+stroke+';stroke-width:0.75'},g);el('text',{x:x,y:y,'text-anchor':'middle','dominant-baseline':'central',class:'ts',style:'font-family:var(--font-mono);fill:#2C2C2A'},g).textContent=txt;return g;}
+function line(pts,arrow,dash){const l=el('polyline',{points:pts,fill:'none',class:'tr',style:'stroke:#5F5E5A;stroke-width:1.25'+(dash?';stroke-dasharray:4 3':'')});if(arrow)l.setAttribute('marker-end','url(#arrow)');return l;}
+const task=grp();el('circle',{cx:340,cy:40,r:24,style:'fill:#fff;stroke:#888780;stroke-width:1'},task);icon(task,340,40,'ti-ticket',20);el('text',{x:372,y:40,'dominant-baseline':'central',class:'ts'},task).textContent='Task';
+const big=grp();el('circle',{cx:340,cy:180,r:70,style:'fill:none;stroke:#A32D2D;stroke-width:1.75'},big);el('text',{x:418,y:118,class:'ts',style:'fill:#A32D2D;font-weight:600'},big).textContent='↻ one loop, one agent';
+const lt0=line('340,66 340,106',1),lt1=line('316,40 122,40 122,146',1);
+const lpw=line('178,180 300,180',1),lwc=line('378,180 500,180',1);
+const fb=line('540,144 540,118 160,118 160,146',1,1);
+const shm=grp();el('rect',{x:190,y:290,width:300,height:46,rx:8,style:'fill:#FCEBEB;stroke:#A32D2D;stroke-width:0.75'},shm);el('text',{x:340,y:313,'text-anchor':'middle','dominant-baseline':'central',class:'ts',style:'fill:#791F1F'},shm).textContent='Shared context: every task, every result';
+const sm0=line('340,252 340,288',1),sm1=[line('140,240 250,288',1),line('340,240 340,288',1),line('540,240 430,288',1)];
+const J=[['Planner','ti-brain','#534AB7','#3C3489','#EEEDFE',140],['Worker','ti-tool','#0F6E56','#085041','#E1F5EE',340],['Checker','ti-checklist','#993C1D','#712B13','#FAECE7',540]];
+const jobs=J.map(([n,ic,o,t])=>{const g=grp();const ci=el('circle',{cx:0,cy:0,r:36,style:'fill:#fff;stroke:'+o+';stroke-width:1.5'},g);icon(g,0,0,ic,24,o);const tx=el('text',{x:0,y:52,'text-anchor':'middle',class:'th',style:'fill:'+t+';transition:opacity .4s'},g);tx.textContent=n;return{g,ci,t:tx};});
+const own=J.map(([n,ic,o,t,f,x])=>{const g=grp();el('rect',{x:x-65,y:292,width:130,height:42,rx:8,style:'fill:'+f+';stroke:'+o+';stroke-width:0.75'},g);el('text',{x:x,y:313,'text-anchor':'middle','dominant-baseline':'central',class:'ts',style:'fill:'+t},g).textContent='Own state';return g;});
+const owl=J.map(([,,,,,x])=>line(x+',240 '+x+',290',1));
+const fr=pill(530,236,'finish_reason decides all','#FAEEDA','#854F0B');
+const retry=pill(445,258,'↻ max 3 tries','#FAEEDA','#854F0B');
+const flags=[240,440].map(x=>{const g=grp();icon(g,x,205,'ti-flag',16,'#5F5E5A');return g;});
+const lock=grp();el('circle',{cx:569,cy:147,r:13,style:'fill:#fff;stroke:#993C1D;stroke-width:0.75'},lock);icon(lock,569,147,'ti-lock',14,'#993C1D');
+const pP=pill(240,160,'{plan}','#EEEDFE','#534AB7'),pW=pill(440,160,'{result}','#E1F5EE','#0F6E56'),pF=pill(350,102,'{status: fail, why}','#FAECE7','#993C1D');
+const cluster=[[310,165,.62],[370,165,.62],[340,208,.62]];
+const S=[
+['Root cause','One agent does thinking, acting and checking, shares one context, and only stops when finish_reason says so.'],
+['Separation of concerns','Split the three jobs: a Planner thinks, a Worker acts, a Checker checks.'],
+['Isolated state','Each part keeps only its own data. The big query result never reaches the Planner.'],
+['Bounded execution','Retry limits and checkpoints. A failure stops or resumes from a checkpoint; it doesn\'t loop.'],
+['Maker-checker','The Checker verifies independently. The Worker can\'t touch the tests.'],
+['Explicit hand-offs','Each step returns a structured status instead of relying on finish_reason. This is a multi-agent system.']];
+const o=(e,v)=>{e.style.opacity=v?1:0;};
+let step=0;
+function render(){const s=step;
+jobs.forEach((j,i)=>{const[x,y,sc]=s===0?cluster[i]:[J[i][5],180,1];j.g.style.transform='translate('+x+'px,'+y+'px) scale('+sc+')';j.t.style.opacity=s===0?0:1;j.ci.style.strokeWidth=(i===2&&s>=4)?3.5:1.5;});
+o(big,s===0);o(lt0,s===0);o(lt1,s>=1);o(lpw,s>=1);o(lwc,s>=1);o(fb,s>=1);o(fr,s===0);
+o(shm,s<2);o(sm0,s===0);sm1.forEach(l=>o(l,s===1));
+own.forEach(g=>{o(g,s>=2);g.style.transform=s>=2?'none':'translate(0px,10px)';});owl.forEach(l=>o(l,s>=2));
+o(retry,s>=3);flags.forEach(f=>o(f,s>=3));o(lock,s>=4);[pP,pW,pF].forEach(p=>o(p,s>=5));
+document.getElementById('lbl').textContent='Step '+(s+1)+' of 6 · '+S[s][0];document.getElementById('cap').textContent=S[s][1];
+document.getElementById('pv').disabled=s===0;document.getElementById('nx').disabled=s===5;}
+document.getElementById('nx').onclick=()=>{if(step<5){step++;render();}};
+document.getElementById('pv').onclick=()=>{if(step>0){step--;render();}};
+render();
+</script>
+</main></body></html>

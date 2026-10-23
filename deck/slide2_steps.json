@@ -1,0 +1,41 @@
+{
+  "nodes": {
+    "ticket": {"label": "BAU ticket", "icon": "ticket", "pos": [340, 45]},
+    "agent":  {"label": "Single agent", "icon": "robot", "pos": [340, 215]},
+    "sql":    {"label": "Run SQL", "icon": "database", "pos": [120, 130]},
+    "code":   {"label": "Search code", "icon": "code", "pos": [560, 130]},
+    "tests":  {"label": "Run tests", "icon": "test-pipe", "pos": [120, 300]},
+    "human":  {"label": "Human sign-off", "icon": "user-check", "pos": [560, 300]},
+    "close":  {"label": "Close ticket", "icon": "circle-check", "pos": [560, 400]}
+  },
+  "edges": [["ticket","agent"],["agent","sql"],["agent","code"],["agent","tests"],["agent","human"],["human","close"]],
+  "happy": [
+    {"from":"ticket","to":"agent","caption":"Defect: PD is null for 120 accounts","code":"messages = [ticket_4521]","ctx":5},
+    {"from":"agent","to":"sql","caption":"Find where the nulls come from","code":"finish_reason = \"tool_use\" → run_sql(count nulls by source)","ctx":5},
+    {"from":"sql","to":"agent","caption":"All 120 come from one source feed","code":"messages.append(tool_result)  # 5 rows","ctx":5},
+    {"from":"agent","to":"code","caption":"Look at how that feed is joined","code":"finish_reason = \"tool_use\" → search_code(\"pd_join\")","ctx":5},
+    {"from":"code","to":"agent","caption":"Join is on the wrong key","code":"messages.append(tool_result)","ctx":6},
+    {"from":"agent","to":"tests","caption":"Apply fix, run reconciliation","code":"finish_reason = \"tool_use\" → run_tests(fix_4521)","ctx":5},
+    {"from":"tests","to":"agent","caption":"Reconciliation passes","code":"messages.append({\"status\": \"pass\"})","ctx":3},
+    {"from":"agent","to":"human","caption":"Fix and evidence sent for sign-off","code":"finish_reason = \"end_turn\" → human_signoff","ctx":3},
+    {"from":"human","to":"close","caption":"Approved. Ticket closed.","code":"approved = True → close_ticket(4521)","ctx":0}
+  ],
+  "chaos": [
+    {"from":"ticket","to":"agent","caption":"Three defects queued in one session","code":"messages = [ticket_4521, ticket_4522, ticket_4523]","smell":"","ctx":10},
+    {"from":"agent","to":"sql","caption":"Pulls the whole table to \"have a look\"","code":"finish_reason = \"tool_use\" → run_sql(\"SELECT * ...\")","smell":"Unbounded tool output","ctx":5},
+    {"from":"sql","to":"agent","caption":"50,000 rows land in the context","code":"messages.append(tool_result)  # 30k tokens","smell":"No limit on what a tool returns","ctx":28},
+    {"from":"agent","to":"code","caption":"Finds the join bug for ticket 4521","code":"finish_reason = \"tool_use\" → search_code(\"pd_join\")","smell":"","ctx":6},
+    {"from":"code","to":"agent","caption":"Bug found, but it switches to ticket 4522","code":"messages.append(tool_result)","smell":"Task switching inside one context","ctx":6},
+    {"from":"agent","to":"sql","caption":"Queries accounts for 4522","code":"finish_reason = \"tool_use\" → run_sql(accounts_4522)","smell":"Shared state across tasks","ctx":5},
+    {"from":"sql","to":"agent","caption":"Now two account lists sit side by side","code":"messages.append(tool_result)","smell":"Shared state across tasks","ctx":10,"wasted":true},
+    {"from":"agent","to":"tests","caption":"Tests fix 4521 using 4522 data","code":"finish_reason = \"tool_use\" → run_tests(fix_4521, data_4522)","smell":"Wrong state passed to step","ctx":4},
+    {"from":"tests","to":"agent","caption":"Test fails","code":"{\"status\": \"fail\"}","smell":"","ctx":4,"wasted":true},
+    {"from":"agent","to":"tests","caption":"Retries the same fix","code":"finish_reason = \"tool_use\" → run_tests(fix_4521)  # again","smell":"No retry budget","ctx":4,"wasted":true},
+    {"from":"tests","to":"agent","caption":"Fails again","code":"{\"status\": \"fail\"}","smell":"","ctx":4,"wasted":true},
+    {"from":"agent","to":"tests","caption":"Edits the test so it passes","code":"finish_reason = \"tool_use\" → edit_test()  # marks own homework","smell":"Maker is also the checker","ctx":5,"wasted":true},
+    {"from":"tests","to":"agent","caption":"Test \"passes\"","code":"{\"status\": \"pass\"}  # false green","smell":"Maker is also the checker","ctx":3,"wasted":true},
+    {"from":"agent","to":"human","caption":"Sends fix for 4521 with evidence from 4522","code":"finish_reason = \"end_turn\" → human_signoff","smell":"","ctx":3},
+    {"from":"human","to":"agent","caption":"Rejected: evidence does not match ticket","code":"messages.append(reject_feedback)","smell":"No checkpoint to resume from","ctx":3,"wasted":true},
+    {"from":"agent","to":"agent","caption":"Context full. No ticket closed.","code":"finish_reason = \"max_tokens\"  # 3 tickets, 0 fixed","smell":"Single point of failure","ctx":100,"wasted":true}
+  ]
+}
