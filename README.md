@@ -1,74 +1,67 @@
 # Multi-Agent Systems & Subgraph Architecture
 
-Why single AI agents break down, why that's a system-design problem, and the core idea of multi-agent systems — a Morph-animated PowerPoint (slides 1–6) with speaker notes, plus interactive HTML versions of every visual.
+Team deck, built in parts. Each folder is one block of slides from the deck structure.
 
-## What's here
+| Folder | Slides | Status |
+|---|---|---|
+| `slides-01-06/` | 1 Title · 2 Why Single Agents Fail · 3 Part 2 (thinking + acting + checking) · 4 Failure Modes · 5 Root Cause · 6 Core Idea | 🔒 Locked |
+| `slides-14-16/` | 14 Common Mistakes · 15 How to Choose the Right Pattern · 16 Design Principles · 16a LangChain and LangGraph | ✏️ Draft (animations later) |
 
 ```
 multi-agent-deck/
-├── output/
-│   └── Multi-Agent-Systems.pptx   ← the deck: 43 slides (presents as 6), Morph + speaker notes
-├── deck/
-│   ├── SPEAKER_NOTES.md           ← final speaker notes, slide by slide, with click cues and PPT slide numbers
-│   ├── LOCKED.md                  ← locked content, design decisions, palette (source of truth for text)
-│   └── slide2_steps.json          ← step data for the slide 2 animation
-├── widgets/                       ← interactive HTML version of every visual
-│   ├── index.html                 ← start here
-│   ├── slide1_parent_graph.html … slide6_three_layouts.html
-│   ├── extra_*.html               ← finish_reason loop, launch-post loop, trace (appendix)
-│   ├── _base.css                  ← white-background palette
-│   └── vendor/                    ← Tabler icon font (works offline)
-├── assets/icons/                  ← icon PNGs used in the deck
-├── build_deck.js                  ← generates the .pptx
-└── add_morph.py                   ← adds Morph transitions to the generated .pptx
+├── slides-01-06/
+│   ├── Slides-01-06.pptx          ← master: 43 slides, Morph — present this live
+│   ├── Slides-01-06-GIF.pptx      ← short version: 9 slides, GIFs + Morph
+│   ├── Slides-01-06-GIF.pdf       ← PDF export (keep gifs/ next to it)
+│   ├── gifs/                      ← one GIF per animation
+│   ├── SPEAKER_NOTES.md
+│   └── source/                    ← scripts + data to rebuild (see below)
+└── slides-14-16/
+    ├── Slides-14-16.pptx          ← 4 slides
+    ├── SPEAKER_NOTES.md
+    └── source/build_slides.js
 ```
 
-## Presenting
+## Slides 1–6: master → GIFs → short deck → PDF
 
-Open `output/Multi-Agent-Systems.pptx` in PowerPoint (Microsoft 365 or 2019+). Every step slide uses **Morph**, so each click animates the change. Sections map to the six slide titles:
+```mermaid
+flowchart TD
+    M["<b>Slides-01-06.pptx</b><br/>master · 43 slides · 6 sections"]:::file
+    subgraph P["source/pptx_to_gifs.py"]
+        R["1 · Render<br/>slides → PNG"]:::script --> G["2 · Group<br/>by section"]:::script --> S["3 · Stitch<br/>PNGs → GIF"]:::script
+    end
+    M --> R
+    S --> GIFS["<b>gifs/*.gif</b><br/>happy path · chaotic path · core idea · …"]:::file
+    M --> B["<b>source/build_gif_deck.py</b><br/>keep master slides + add GIF slides"]:::script
+    GIFS --> B
+    B --> D["<b>Slides-01-06-GIF.pptx</b><br/>9 slides · GIFs play · Morph kept"]:::file
+    D --> E["PowerPoint: File → Export → Create PDF"]:::manual
+    E --> F["<b>Slides-01-06-GIF.pdf</b><br/>still frames + ► Play links"]:::file
+    F -. "click ► Play → opens gifs/…" .-> GIFS
+    classDef file fill:#E1F5EE,stroke:#0F6E56,color:#085041
+    classDef script fill:#EEEDFE,stroke:#534AB7,color:#3C3489
+    classDef manual fill:#F1EFE8,stroke:#888780,color:#2C2C2A
+```
 
-| Section | Slides | What each click does |
-|---|---|---|
-| 1 · Title | 1 | — |
-| 2 · Why Single Agents Fail | 2–28 | Dot moves node to node. Happy flow (9 steps), then chaotic flow (16 steps) |
-| 3 · Thinking + Acting + Checking | 29–30 | Mixed context tape → blocks slide into three lanes |
-| 4 · Failure Modes | 31–33 | Reveals thinking → acting → checking families |
-| 5 · Root Cause | 34–39 | Applies one design principle per click until it's a multi-agent system |
-| 6 · Core Idea | 40–43 | Supervisor → pipeline → peer swarm → why it's better |
-
-Speaker notes are on every slide and match `deck/SPEAKER_NOTES.md` (click cues, timings, and answers to likely questions).
-
-Morph needs PowerPoint 2019+ or Microsoft 365. Older PowerPoint, Keynote and Google Slides fall back to a fade. **Don't export to PDF to share it** (animation is lost). For a shareable preview, use PowerPoint → File → Export → Create a Video, which keeps Morph.
-
-## Rebuilding the deck
-
-Only needed if you change content in `deck/` or the script. Once you start hand-editing the `.pptx`, treat that file as the master and don't regenerate over it.
+*Purple: script you run · Teal: file · Grey: manual step.*
 
 ```bash
-npm install pptxgenjs react react-dom react-icons sharp
-node build_deck.js
-python3 add_morph.py output/Multi-Agent-Systems.pptx
-python3 apply_notes.py output/Multi-Agent-Systems.pptx
+cd slides-01-06/source
+pip install pillow numpy python-pptx pymupdf     # + LibreOffice, or on Windows: pip install pywin32
+python pptx_to_gifs.py                           # → ../gifs/
+python build_gif_deck.py                         # → ../Slides-01-06-GIF.pptx
 ```
+Then open `Slides-01-06-GIF.pptx` → File → Export → Create PDF/XPS (not *Print to PDF*, which drops links). Share the PDF together with its `gifs` folder.
 
-Edited the notes only? Rebuild all three steps (`apply_notes.py` expects a freshly built deck).
+Rebuilding the master itself (only if the content changes): `node build_deck.js && python add_morph.py && python apply_notes.py` (needs `npm install pptxgenjs react react-dom react-icons sharp`).
 
-Morph pairs shapes by name. Every animated shape is named `!!something` and keeps the same name across its step slides; keep that if you edit by hand (Selection Pane in PowerPoint).
-
-## Interactive visuals
-
-Open `widgets/index.html` in a browser. Everything works offline. To share as a live link, turn on GitHub Pages for the repo and point it at the `widgets/` folder.
-
-## Putting it on GitHub
+## Slides 14–16
 
 ```bash
-cd multi-agent-deck
-git init
-git add .
-git commit -m "Slides 1–6: deck, widgets, build script"
-git branch -M main
-git remote add origin https://github.com/<you>/multi-agent-deck.git   # create it as a PRIVATE repo first
-git push -u origin main
+cd slides-14-16/source
+node build_slides.js                             # → ../Slides-14-16.pptx (notes from ../SPEAKER_NOTES.md)
 ```
 
-The `.pptx` is committed as-is, so all Morph animations stay inside the file. Before pushing work material, check your organisation's policy on external repositories.
+## Design system
+
+White background; light fill + darker outline + darkest text from one colour family. Purple = control/thinking, teal = agents/acting/fixes, coral = checking/mistakes, grey = neutral. Full palette in `slides-01-06/source/LOCKED.md`.
