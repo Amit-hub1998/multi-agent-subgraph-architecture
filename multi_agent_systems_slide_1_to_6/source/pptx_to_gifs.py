@@ -46,7 +46,7 @@ WIDTH = 3200            # rendered slide width in pixels: render big, then shrin
 GIF_WIDTH = 1600        # final GIF width; ~130 px per inch when shown 12" wide on a slide
 COLORS = 256            # GIF maximum; slides use flat colours, so 256 keeps them exact
 CROP_TOP_INCHES = 1.42      # cut off title + rule + lead line (the GIF slide has its own); 0 = keep them
-CROP_BOTTOM_INCHES = 0.56   # cut off the page number + RESTRICTED footer; 0 = keep it
+CROP_BOTTOM_INCHES = 0.56   # cut off the page number footer; 0 = keep it
 HOLD_MS = 1300          # how long each step stays on screen
 FIRST_HOLD_MS = 2000    # first step stays a bit longer
 LAST_HOLD_MS = 3000     # last step stays longest, so the "result" can be read before the loop restarts

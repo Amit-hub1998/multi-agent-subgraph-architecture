@@ -6,7 +6,7 @@ Team deck, built in parts. Each folder is one block of slides from the deck stru
 |---|---|---|
 | `multi_agent_systems_slide_1_to_6/` | 1 Response Codes · 2 Why Single Agents Fail · 3 Why Single Agents Fail – Part 2 · 4 Failure Modes · 5 Root Cause · 6 Core Idea | 🔒 Locked (house style) |
 | `gif-builder/` | Tools: any PPT slides → GIF, and GIF → slide with a Play button + PDF | 🛠 Demo-ready |
-| `multi_agent_systems_slide_14_to_16/` | 14 Common Mistakes · 15 How to Choose the Right Pattern · 16 Design Principles · 16a LangChain and LangGraph | ✏️ Draft (animations later) |
+| `multi_agent_systems_slide_14_to_16/` | 14 Common Mistakes · 15 How to Choose the Right Pattern · 16 Design Principles · 16a LangChain and LangGraph · 16b Reading the Graph (click-through) | ✅ Ready (house style; Morph click-through on 16b) |
 
 ```
 multi-agent-deck/
@@ -19,9 +19,9 @@ multi-agent-deck/
 │   └── source/                    ← scripts + data to rebuild (see below)
 ├── gif-builder/                   ← make_gif.py · add_gif_to_ppt.py · ppt_to_pdf.py · fix_pdf_links.py
 └── multi_agent_systems_slide_14_to_16/
-    ├── Slides-14-16.pptx          ← 4 slides
+    ├── Slides-14-16.pptx          ← 11 slides: 14, 15, 16, 16a + 7 click-through 16b slides
     ├── SPEAKER_NOTES.md
-    └── source/build_slides.js
+    └── source/                    ← build_slides.js + add_morph.py
 ```
 
 ## Slides 1–6: master → GIFs → short deck → PDF
@@ -66,9 +66,9 @@ Rebuilding the master itself (only if the content changes): `node build_deck.js 
 
 ```bash
 cd multi_agent_systems_slide_14_to_16/source
-node build_slides.js                             # → ../Slides-14-16.pptx (notes from ../SPEAKER_NOTES.md)
+node build_slides.js && python add_morph.py      # → ../Slides-14-16.pptx (notes from ../SPEAKER_NOTES.md; Morph + button links on 16b)
 ```
 
 ## Design system
 
-House style (from the team deck): bold title + thin rule, one or two lead sentences, page number + RESTRICTED footer. White background; light fill + darker outline + darkest text from one colour family. Purple = control/thinking, teal = agents/acting/fixes, coral = checking/mistakes, grey = neutral. Full palette in `multi_agent_systems_slide_1_to_6/source/LOCKED.md`.
+House style (from the team deck): bold title + thin rule, one or two lead sentences, page number footer (the RESTRICTED/INTERNAL label comes from Office's sensitivity labelling, so the deck doesn't add its own). White background; light fill + darker outline + darkest text from one colour family. Purple = control/thinking, teal = agents/acting/fixes, coral = checking/mistakes, grey = neutral. Full palette in `multi_agent_systems_slide_1_to_6/source/LOCKED.md`.

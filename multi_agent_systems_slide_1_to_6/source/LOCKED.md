@@ -6,7 +6,7 @@ Status: Slide 1 ✅ locked · Slide 2 ✅ locked · Slide 3 ✅ locked · Slide 
 
 ## House style (team deck)
 
-Title Calibri Bold 26pt, near-black, top left · thin grey rule under the title · one or two lead sentences in Arial 14pt grey (the reminder line) · footer: slide-number field centred + "RESTRICTED" below, Arial, grey. Titles follow the team's slide sheet.
+Title Calibri Bold 26pt, near-black, top left · thin grey rule under the title · one or two lead sentences in Arial 14pt grey (the reminder line) · footer: slide-number field centred, Arial, grey. No "RESTRICTED" text: Office adds the classification label automatically when the file is labelled. Titles follow the team's slide sheet.
 
 ## PPT design system (white background — applies to every slide)
 

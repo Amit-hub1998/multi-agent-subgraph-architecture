@@ -81,7 +81,7 @@ function twoLine(title, sub, col, fsT = 12, fsS = 10) {
     { text: sub, options: { fontSize: fsS, color: col.o } },
   ];
 }
-// House style (matches the team deck): bold title, thin rule, a short lead line, RESTRICTED + page number footer.
+// House style (matches the team deck): bold title, thin rule, a short lead line, page number footer (the classification label is added by Office itself).
 const TITLE_FONT = "Calibri", BODY_FONT = "Arial";
 function header(sl, t, lead) {
   txt(sl, t, 0.45, 0.22, 12.4, 0.58, { fs: 26, bold: true, color: "1A1A1A", valign: "bottom", name: "!!title" });
@@ -92,8 +92,6 @@ function header(sl, t, lead) {
 }
 function footer(sl) {
   sl.slideNumber = { x: 6.17, y: 6.98, w: 1.0, h: 0.22, fontFace: BODY_FONT, fontSize: 10, color: "595959", align: "center" };
-  sl.addText("RESTRICTED", { x: 5.67, y: 7.17, w: 2.0, h: 0.22, fontFace: BODY_FONT, fontSize: 8, color: "7F7F7F",
-    align: "center", margin: 0, isTextBox: true, objectName: "!!restricted" });
 }
 // Lead lines: one or two sentences per slide, a reminder of the point while presenting
 const LEAD = {

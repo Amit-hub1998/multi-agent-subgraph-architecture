@@ -155,7 +155,7 @@ def textbox(slide, text, x, y, w, h, size, bold=False, italic=False, color=TEXT,
 
 
 def house_style(slide, title, lead):
-    """Same header and footer as the master deck: bold title, thin rule, lead line, page number + RESTRICTED."""
+    """Same header and footer as the master deck: bold title, thin rule, lead line, page number (Office adds the classification label)."""
     textbox(slide, title, 0.45, 0.22, 12.4, 0.58, 26, bold=True, color="1A1A1A", anchor=MSO_ANCHOR.BOTTOM)
     rule = slide.shapes.add_connector(1, Inches(0.45), Inches(0.88), Inches(12.88), Inches(0.88))   # 1 = straight line
     rule.line.color.rgb = RGBColor.from_string("7F7F7F"); rule.line.width = Pt(0.75)
@@ -172,7 +172,6 @@ def house_style(slide, title, lead):
     etree.SubElement(fill, f"{{{NS['a']}}}srgbClr", val="595959")
     etree.SubElement(rpr, f"{{{NS['a']}}}latin", typeface=BODY_FONT)
     etree.SubElement(fld, f"{{{NS['a']}}}t").text = "‹#›"
-    textbox(slide, "RESTRICTED", 5.67, 7.17, 2.0, 0.22, 8, color="7F7F7F", font=BODY_FONT, align=PP_ALIGN.CENTER)
 
 
 def add_gif_slide(prs, gif_path, link, title, lead, takeaway, notes):
