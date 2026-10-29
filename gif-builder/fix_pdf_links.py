@@ -23,6 +23,7 @@ import argparse
 import os
 import shutil
 import sys
+from urllib.parse import unquote
 
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import DictionaryObject, NameObject, TextStringObject
@@ -34,19 +35,45 @@ def ask(question, default=None):
     return answer or (default or "")
 
 
-def link_target(action):
-    """Return the file/URL a link points to, whatever form PowerPoint used."""
-    if action is None:
-        return None
-    if "/URI" in action:                                   # web-style link (may be file:///C:/…)
-        return str(action["/URI"])
-    f = action.get("/F")                                   # Launch / GoToR: a file specification
+def _filespec(f):
+    """A PDF file specification: a plain string, or a dictionary with /UF, /F or /DOS."""
     if f is None:
         return None
     f = f.get_object()
     if isinstance(f, DictionaryObject):
-        f = f.get("/UF") or f.get("/F")
+        f = f.get("/UF") or f.get("/F") or f.get("/DOS") or f.get("/Unix")
+        f = f.get_object() if f is not None else None
     return str(f) if f is not None else None
+
+
+def link_target(action):
+    """Return the file/URL a link points to, whatever form PowerPoint used:
+    /URI (web or file:///), /Launch or /GoToR with /F, or /Launch with a Windows /Win {/F …} block."""
+    if action is None:
+        return None
+    action = action.get_object()
+    if "/URI" in action:
+        target = str(action["/URI"])
+    else:
+        target = _filespec(action.get("/F"))
+        if target is None:
+            for key in ("/Win", "/Unix", "/Mac"):          # platform-specific launch parameters
+                block = action.get(key)
+                if block is not None:
+                    target = _filespec(block.get_object().get("/F"))
+                    if target:
+                        break
+    if target is None and action.get("/Next") is not None:  # chained actions
+        nxt = action["/Next"].get_object()
+        for a in (nxt if isinstance(nxt, list) else [nxt]):
+            target = link_target(a)
+            if target:
+                break
+    return unquote(target) if target else None
+
+
+def is_gif(target):
+    return bool(target) and target.lower().split("?")[0].split("#")[0].rstrip("/").endswith(".gif")
 
 
 def fix(pdf, base):
@@ -61,9 +88,9 @@ def fix(pdf, base):
             action = annot.get("/A")
             action = action.get_object() if action is not None else None
             target = link_target(action)
-            if not target or not target.lower().split("?")[0].endswith(".gif"):
+            if not is_gif(target):
                 continue
-            name = target.replace("\\", "/").rstrip("/").split("/")[-1]
+            name = target.split("?")[0].split("#")[0].replace("\\", "/").rstrip("/").split("/")[-1]
             new = base + name
             if target == new:
                 ok += 1
@@ -84,6 +111,25 @@ def fix(pdf, base):
     return changed, ok
 
 
+def show_links(pdf, limit=15):
+    """Print every link in the PDF as PowerPoint wrote it (for diagnosing)."""
+    n = 0
+    for page_no, page in enumerate(PdfReader(pdf).pages, 1):
+        for ref in page.get("/Annots") or []:
+            annot = ref.get_object()
+            if annot.get("/Subtype") != "/Link":
+                continue
+            n += 1
+            if n <= limit:
+                action = annot.get("/A")
+                raw = dict(action.get_object()) if action is not None else {"/Dest": annot.get("/Dest")}
+                print(f"  page {page_no}: {raw}")
+    if n == 0:
+        print("  no links at all: the hyperlinks were not exported")
+    elif n > limit:
+        print(f"  … {n - limit} more")
+
+
 def main():
     ap = argparse.ArgumentParser(description="Rewrite GIF links in a PowerPoint-exported PDF as plain links")
     ap.add_argument("pdf", nargs="?")
@@ -99,6 +145,8 @@ def main():
         return
     if not changed:
         print("No links to .gif files found (nothing changed). Was the PDF made with File → Export, not Print to PDF?")
+        print("What the PDF does contain:")
+        show_links(pdf)
         return
     for page, kind, old, new in changed:
         print(f"  page {page}: {kind} {old}  →  {new}")
