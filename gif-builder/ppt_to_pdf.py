@@ -9,6 +9,7 @@ It does not add or move anything; it:
     1. CHECKS which slides of the PowerPoint link to a GIF (the Play buttons)
     2. EXPORTS the PowerPoint to PDF (PowerPoint on Windows, otherwise LibreOffice), next to the PPT
     3. FIXES the GIF links PowerPoint rewrote, back to  gifs/<file>.gif   (see fix_pdf_links.py)
+       and ADDS any link the export dropped, on the Play button's spot (position read from the PPT)
     4. CHECKS that each linked GIF exists in the gifs folder next to the PDF
 
 Install:  pip install python-pptx pypdf      (+ pywin32 on Windows, or LibreOffice)
@@ -21,7 +22,7 @@ from pptx import Presentation
 from pypdf import PdfReader
 
 from add_gif_to_ppt import _export, ask
-from fix_pdf_links import fix, is_gif, link_target, show_links
+from fix_pdf_links import add_links_from_pptx, fix, is_gif, link_target, show_links
 
 
 def gif_links_in_pptx(pptx):
@@ -70,9 +71,12 @@ def main():
 
     # 3 · fix the links PowerPoint rewrote
     changed, ok = fix(pdf, "gifs/")
-    print(f"\n3) Links: {len(changed)} fixed, {ok} already fine")
+    added = add_links_from_pptx(pdf, pptx, "gifs/")
+    print(f"\n3) Links: {len(changed)} fixed, {len(added)} added (dropped by the export), {ok} already fine")
     for page, kind, old, new in changed:
         print(f"   page {page}: {kind} {old}  →  {new}")
+    for page, link in added:
+        print(f"   page {page}: added on the Play button → {link}")
 
     # 4 · check
     in_pdf = gif_links_in_pdf(pdf)

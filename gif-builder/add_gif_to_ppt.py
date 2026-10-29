@@ -128,8 +128,9 @@ def place(prs, slide, gif_path, link, top_in):
 def export_pdf(pptx):
     pdf = _export(pptx)
     if pdf:
-        from fix_pdf_links import fix          # PowerPoint rewrites file links; put them back to gifs/<file>
-        fix(pdf, "gifs/")
+        from fix_pdf_links import add_links_from_pptx, fix
+        fix(pdf, "gifs/")                       # PowerPoint rewrites file links; put them back to gifs/<file>
+        add_links_from_pptx(pdf, pptx)          # …or drops them: add them back at each Play button
     return pdf
 
 

@@ -141,7 +141,7 @@ For a PDF that works anywhere, put the GIFs on SharePoint or OneDrive and use th
 python ppt_to_pdf.py                 # asks: PowerPoint file (path)
 ```
 
-It exports the PDF next to the PPT, fixes the GIF links, and lists each Play link with `found` / `MISSING` so you know the `gifs` folder is complete. It doesn't add or move anything: the buttons and their links were already set by `add_gif_to_ppt.py` (or by hand with Ctrl+K).
+It exports the PDF next to the PPT, fixes the GIF links PowerPoint rewrote, **adds back any link PowerPoint dropped** (on the same spot as the Play button, read from the PPT), and lists each Play link with `found` / `MISSING` so you know the `gifs` folder is complete. It doesn't add or move anything: the buttons and their links were already set by `add_gif_to_ppt.py` (or by hand with Ctrl+K).
 
 | Script | Asks for | Decides |
 |---|---|---|
@@ -153,10 +153,10 @@ It exports the PDF next to the PPT, fixes the GIF links, and lists each Play lin
 **Exported the PDF yourself from PowerPoint? Run the fixer afterwards:**
 
 ```bash
-python fix_pdf_links.py Agents-with-gifs.pdf
+python fix_pdf_links.py Agents-with-gifs.pdf --pptx Agents-with-gifs.pptx
 ```
 
-PowerPoint's *File → Export → PDF* rewrites links to local files, either as a full `C:\Users\…` path or as a "launch this file" action. Edge blocks launch actions, and full paths break on any other computer, so **► Play** does nothing. `fix_pdf_links.py` turns every GIF link back into a plain `gifs/<file>.gif` link (it keeps the original as `.orig.pdf`). For links that work from anywhere, point them at SharePoint/OneDrive instead:
+`--pptx` lets it add back links PowerPoint dropped altogether. PowerPoint's *File → Export → PDF* rewrites links to local files, either as a full `C:\Users\…` path or as a "launch this file" action. Edge blocks launch actions, and full paths break on any other computer, so **► Play** does nothing. `fix_pdf_links.py` turns every GIF link back into a plain `gifs/<file>.gif` link (it keeps the original as `.orig.pdf`). For links that work from anywhere, point them at SharePoint/OneDrive instead:
 
 ```bash
 python fix_pdf_links.py Agents-with-gifs.pdf --base https://yourcompany.sharepoint.com/sites/team/Shared%20Documents/gifs/
@@ -185,4 +185,4 @@ Use *File → Export → Create PDF/XPS* (or Save As → PDF). *Print → Micros
 | GIF looks soft | Raise `GIF_WIDTH` at the top of `make_gif.py` (bigger file) |
 | GIF too fast or slow | `--hold 900` (faster) or `--hold 2000` (slower) |
 | ► Play does nothing in a PDF you exported from PowerPoint | `python fix_pdf_links.py <file>.pdf`, and keep `gifs/` next to the PDF |
-| `No links to .gif files found` | The PDF was made with *Print to PDF*; re-export with *File → Export* |
+| `No links to .gif files found` / `no links at all` | PowerPoint left the links out. Run `python ppt_to_pdf.py <deck>.pptx`, or `python fix_pdf_links.py <file>.pdf --pptx <deck>.pptx` to add them back from the deck |

@@ -3,6 +3,7 @@ fix_pdf_links.py — make the "► Play animation" links work in a PDF exported 
 
     python fix_pdf_links.py                         # asks for the PDF
     python fix_pdf_links.py deck-with-gifs.pdf      # or give it directly
+    python fix_pdf_links.py deck.pdf --pptx deck.pptx  # also re-add links the export dropped
     python fix_pdf_links.py deck.pdf --base https://yourcompany.sharepoint.com/.../gifs/
 
 Why it's needed:
@@ -11,6 +12,7 @@ Why it's needed:
     Edge's PDF viewer blocks launch actions, and full paths break on any other computer.
 
 What it does:
+    (with --pptx) Adds a link on every Play button the export left out, at the button's position in the PPT.
     Finds every link in the PDF that points to a .gif and rewrites it as a plain web-style link:
         gifs/<file>.gif            (default: relative to the PDF, so keep the gifs folder next to it)
         <base><file>.gif           (with --base: e.g. a SharePoint/OneDrive folder, works anywhere)
@@ -26,7 +28,8 @@ import sys
 from urllib.parse import unquote
 
 from pypdf import PdfReader, PdfWriter
-from pypdf.generic import DictionaryObject, NameObject, TextStringObject
+from pypdf.generic import (ArrayObject, DictionaryObject, FloatObject, NameObject, NumberObject,
+                           TextStringObject)
 
 
 def ask(question, default=None):
@@ -111,6 +114,82 @@ def fix(pdf, base):
     return changed, ok
 
 
+def _shape_links(shapes, dx=0, dy=0):
+    """(left, top, width, height, link) in EMU for every shape whose click or text links to a .gif."""
+    out = []
+    for sh in shapes:
+        if sh.shape_type == 6:                                     # group: look inside
+            out += _shape_links(sh.shapes, dx, dy)
+            continue
+        link = None
+        try:
+            if sh.click_action.hyperlink.address:
+                link = sh.click_action.hyperlink.address
+        except Exception:
+            pass
+        if not link and sh.has_text_frame:
+            for p in sh.text_frame.paragraphs:
+                for r in p.runs:
+                    if r.hyperlink.address:
+                        link = r.hyperlink.address
+        if is_gif(link) and None not in (sh.left, sh.top, sh.width, sh.height):
+            out.append((sh.left + dx, sh.top + dy, sh.width, sh.height, link))
+    return out
+
+
+def add_links_from_pptx(pdf, pptx, base="gifs/"):
+    """PowerPoint's PDF export can drop links to local files entirely. Put them back:
+    for every Play button in the PowerPoint, add a clickable link on the same spot of the PDF page.
+    Pages that already have that link are left alone. Returns the links added."""
+    from pptx import Presentation
+    prs = Presentation(pptx)
+    sw, sh = prs.slide_width, prs.slide_height
+    reader = PdfReader(pdf)
+    writer = PdfWriter(clone_from=reader)
+
+    visible = [s for s in prs.slides if s._element.get("show") != "0"]   # hidden slides aren't exported
+    if len(visible) != len(writer.pages):
+        visible = list(prs.slides)
+    added = []
+    for page_no, (slide, page) in enumerate(zip(visible, writer.pages), 1):
+        have = set()
+        for ref in page.get("/Annots") or []:
+            annot = ref.get_object()
+            if annot.get("/Subtype") == "/Link":
+                t = link_target(annot.get("/A"))
+                if is_gif(t):
+                    have.add(t.replace("\\", "/").split("/")[-1])
+        box = page.mediabox
+        x0, y0 = float(box.left), float(box.bottom)
+        kx, ky = float(box.width) / sw, float(box.height) / sh
+        for left, top, w, h, link in _shape_links(slide.shapes):
+            name = link.replace("\\", "/").split("/")[-1]
+            if name in have:
+                continue
+            rect = [x0 + left * kx, y0 + float(box.height) - (top + h) * ky,
+                    x0 + (left + w) * kx, y0 + float(box.height) - top * ky]
+            annot = DictionaryObject({
+                NameObject("/Type"): NameObject("/Annot"),
+                NameObject("/Subtype"): NameObject("/Link"),
+                NameObject("/Rect"): ArrayObject([FloatObject(round(v, 2)) for v in rect]),
+                NameObject("/Border"): ArrayObject([NumberObject(0)] * 3),
+                NameObject("/A"): DictionaryObject({
+                    NameObject("/S"): NameObject("/URI"),
+                    NameObject("/URI"): TextStringObject(base + name)}),
+            })
+            if "/Annots" not in page:
+                page[NameObject("/Annots")] = ArrayObject()
+            page["/Annots"].get_object().append(writer._add_object(annot))
+            have.add(name)
+            added.append((page_no, base + name))
+    if added:
+        tmp = pdf + ".tmp"
+        with open(tmp, "wb") as f:
+            writer.write(f)
+        os.replace(tmp, pdf)
+    return added
+
+
 def show_links(pdf, limit=15):
     """Print every link in the PDF as PowerPoint wrote it (for diagnosing)."""
     n = 0
@@ -134,12 +213,16 @@ def main():
     ap = argparse.ArgumentParser(description="Rewrite GIF links in a PowerPoint-exported PDF as plain links")
     ap.add_argument("pdf", nargs="?")
     ap.add_argument("--base", default="gifs/", help='link prefix (default "gifs/", relative to the PDF)')
+    ap.add_argument("--pptx", help="the PowerPoint the PDF came from: re-adds Play links the export dropped")
     a = ap.parse_args()
     pdf = a.pdf or ask("PDF exported from PowerPoint (path)")
     if not os.path.isfile(pdf):
         sys.exit(f"Not found: {pdf}")
     base = a.base if a.base.endswith("/") else a.base + "/"
     changed, ok = fix(pdf, base)
+    if a.pptx:
+        for page, link in add_links_from_pptx(pdf, a.pptx.strip('"'), base):
+            changed.append((page, "(missing)", "", link))
     if not changed and ok:
         print(f"✓ All {ok} GIF link(s) are already plain links. Nothing to change.")
         return
@@ -147,6 +230,7 @@ def main():
         print("No links to .gif files found (nothing changed). Was the PDF made with File → Export, not Print to PDF?")
         print("What the PDF does contain:")
         show_links(pdf)
+        print("If the PowerPoint dropped them, add them back from the deck:  python fix_pdf_links.py <file>.pdf --pptx <deck>.pptx")
         return
     for page, kind, old, new in changed:
         print(f"  page {page}: {kind} {old}  →  {new}")
