@@ -4,6 +4,10 @@ Status: Slide 1 ✅ locked · Slide 2 ✅ locked · Slide 3 ✅ locked · Slide 
 
 ---
 
+## House style (team deck)
+
+Title Calibri Bold 26pt, near-black, top left · thin grey rule under the title · one or two lead sentences in Arial 14pt grey (the reminder line) · footer: slide-number field centred + "RESTRICTED" below, Arial, grey. Titles follow the team's slide sheet.
+
 ## PPT design system (white background — applies to every slide)
 
 Rule: light fill + darker outline + darkest text from the same colour family. Never white text on a light fill, never pure black on a coloured fill.
@@ -23,16 +27,11 @@ Slide background #FFFFFF. Animated dot: green #1D9E75 (happy), amber #BA7517 →
 
 ---
 
-## Slide 1 — Multi-Agent Systems & Subgraph Architecture ✅
+## Slide 1 — Response Codes: How an Agent Knows What Just Happened ✅
 
-**Subtitle:** From one overloaded agent to a team of focused ones.
+Replaces the old title slide. Left: one trimmed Groq/OpenAI reply with `"finish_reason": "tool_calls"` highlighted. Right: the same idea per provider (Groq·OpenAI `finish_reason`, Anthropic `stop_reason`, Gemini `finishReason`) for finished / wants a tool / cut off / blocked, then what the loop does next. Bridge: one field steers the whole loop, fine for one task, fragile at scale.
 
-**Hook:** Every single-agent loop is steered by one field, `finish_reason`, and that's where the problems start.
-
-**Visual:** Parent graph (dashed container) → Supervisor → three agent subgraphs (Research, Data, Action), each with its own LLM ⇄ Tools loop and state → Checker → Final answer.
-Legend: purple = control nodes, dashed teal = subgraphs.
-
-**Speaker note:** A multi-agent system is a parent graph that coordinates smaller graphs. Each agent is a subgraph: its own LLM, its own few tools, its own loop and state. The supervisor decides who works, the subgraphs do the work in isolation, and the checker verifies before anything leaves. The rest of the deck explains why we need this, then walks through six ways to wire it.
+**Speaker note:** see ../SPEAKER_NOTES.md
 
 ---
 
@@ -61,7 +60,7 @@ Happy flow = Morph, narrated step by step. Chaotic flow = Morph or video (speed 
 
 ---
 
-## Slide 3 — Thinking + Acting + Checking Are Mixed Together ✅
+## Slide 3 — Why Single Agents Fail – Part 2 ✅
 
 **Delivery:** Two slides with Morph. 3a = mixed view (all 16 blocks full width, one column, tags visible). 3b = sorted view (same blocks, same vertical positions, moved into three lane columns, tags hidden, lane headers shown). Click → Morph animates the blocks into lanes. Keep identical shape names across 3a/3b (e.g. `!!blk01`…`!!blk16`) so Morph pairs them.
 

@@ -45,7 +45,8 @@ from PIL import Image
 WIDTH = 3200            # rendered slide width in pixels: render big, then shrink = crisp text (supersampling)
 GIF_WIDTH = 1600        # final GIF width; ~130 px per inch when shown 12" wide on a slide
 COLORS = 256            # GIF maximum; slides use flat colours, so 256 keeps them exact
-CROP_TOP_INCHES = 1.0   # cut off the slide title strip (the new deck has its own title); 0 = keep it
+CROP_TOP_INCHES = 1.42      # cut off title + rule + lead line (the GIF slide has its own); 0 = keep them
+CROP_BOTTOM_INCHES = 0.56   # cut off the page number + RESTRICTED footer; 0 = keep it
 HOLD_MS = 1300          # how long each step stays on screen
 FIRST_HOLD_MS = 2000    # first step stays a bit longer
 LAST_HOLD_MS = 3000     # last step stays longest, so the "result" can be read before the loop restarts
@@ -175,9 +176,9 @@ def slugify(name):
 # --------------------------------------------------------------------------------------------
 def load_frame(png):
     img = Image.open(png).convert("RGB")
-    if CROP_TOP_INCHES:
-        top = round(img.width * CROP_TOP_INCHES / SLIDE_W_INCHES)
-        img = img.crop((0, top, img.width, img.height))
+    px_per_in = img.width / SLIDE_W_INCHES
+    top, bottom = round(CROP_TOP_INCHES * px_per_in), round(CROP_BOTTOM_INCHES * px_per_in)
+    img = img.crop((0, top, img.width, img.height - bottom))
     h = round(img.height * GIF_WIDTH / img.width)
     return img.resize((GIF_WIDTH, h), Image.LANCZOS)
 

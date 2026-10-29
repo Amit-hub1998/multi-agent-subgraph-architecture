@@ -1,0 +1,5 @@
+pillow
+numpy
+python-pptx
+pymupdf
+pywin32; sys_platform == "win32"

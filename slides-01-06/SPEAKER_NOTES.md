@@ -5,12 +5,14 @@ PPT slide numbers are shown for each section so you can find them in Presenter V
 
 ---
 
-## Slide 1 — Multi-Agent Systems & Subgraph Architecture
-*PPT slide 1 · ~1 min*
+## Slide 1 — Response Codes: How an Agent Knows What Just Happened
+*PPT slide 1 · ~2 min*
 
-A multi-agent system is a parent graph that coordinates smaller graphs. Each agent is a subgraph: its own LLM, its own few tools, its own loop and state. The supervisor decides who works, the subgraphs do the work in isolation, and the checker verifies before anything leaves.
+Before we talk about multi-agent systems, look at what one agent actually gets back from the model. Every reply ends with a response code: the model's reason for stopping. Here it's finish_reason = "tool_calls". The content is empty, because the model isn't answering yet; it's asking us to run a tool.
 
-Every single-agent loop is steered by one field, `finish_reason`, and that's where the problems start. The rest of this section explains why we need this architecture, then the later slides walk through six ways to wire it.
+There are really four cases: the model finished its answer, it wants a tool, it was cut off by the token limit, or it was blocked. Every provider has them, but the names change. Groq and OpenAI call the field finish_reason and say stop, tool_calls, length. Anthropic calls it stop_reason and says end_turn, tool_use, max_tokens. Gemini says STOP even when it wants a tool, so you have to look inside the content.
+
+**Close:** A single agent's loop runs on this one field: tool_calls means go again, stop means we're done. That works for one task. The next slides show what happens when we give that same loop more work.
 
 ---
 
@@ -31,7 +33,7 @@ Every single-agent loop is steered by one field, `finish_reason`, and that's whe
 
 ---
 
-## Slide 3 — Thinking + Acting + Checking Are Mixed Together
+## Slide 3 — Why Single Agents Fail – Part 2
 *PPT slides 29–30 · ~2 min*
 
 **Slide 29 (mixed):** This is every message from the chaotic run, top to bottom, coloured by job. Purple is thinking, teal is acting, coral is checking. Look how they take turns in the same window. The 50k-row result sits right where the agent plans from, so the plan drifts. And look at the right-hand tags: every thinking block says "no signal". The loop only ever sees `tool_use` or `end_turn`. There's no signal for "plan ready" or "check passed".

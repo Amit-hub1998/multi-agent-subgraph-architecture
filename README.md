@@ -4,7 +4,8 @@ Team deck, built in parts. Each folder is one block of slides from the deck stru
 
 | Folder | Slides | Status |
 |---|---|---|
-| `slides-01-06/` | 1 Title · 2 Why Single Agents Fail · 3 Part 2 (thinking + acting + checking) · 4 Failure Modes · 5 Root Cause · 6 Core Idea | 🔒 Locked |
+| `slides-01-06/` | 1 Response Codes · 2 Why Single Agents Fail · 3 Why Single Agents Fail – Part 2 · 4 Failure Modes · 5 Root Cause · 6 Core Idea | 🔒 Locked (house style) |
+| `gif-builder/` | Tools: any PPT slides → GIF, and GIF → slide with a Play button + PDF | 🛠 Demo-ready |
 | `slides-14-16/` | 14 Common Mistakes · 15 How to Choose the Right Pattern · 16 Design Principles · 16a LangChain and LangGraph | ✏️ Draft (animations later) |
 
 ```
@@ -16,6 +17,7 @@ multi-agent-deck/
 │   ├── gifs/                      ← one GIF per animation
 │   ├── SPEAKER_NOTES.md
 │   └── source/                    ← scripts + data to rebuild (see below)
+├── gif-builder/                   ← make_gif.py + add_gif_to_ppt.py (see gif-builder/README.md)
 └── slides-14-16/
     ├── Slides-14-16.pptx          ← 4 slides
     ├── SPEAKER_NOTES.md
@@ -64,4 +66,4 @@ node build_slides.js                             # → ../Slides-14-16.pptx (not
 
 ## Design system
 
-White background; light fill + darker outline + darkest text from one colour family. Purple = control/thinking, teal = agents/acting/fixes, coral = checking/mistakes, grey = neutral. Full palette in `slides-01-06/source/LOCKED.md`.
+House style (from the team deck): bold title + thin rule, one or two lead sentences, page number + RESTRICTED footer. White background; light fill + darker outline + darkest text from one colour family. Purple = control/thinking, teal = agents/acting/fixes, coral = checking/mistakes, grey = neutral. Full palette in `slides-01-06/source/LOCKED.md`.

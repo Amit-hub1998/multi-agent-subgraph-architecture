@@ -42,21 +42,24 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # Sections group the slides in PowerPoint's slide panel.
 # --------------------------------------------------------------------------------------------
 PLAN = [
-    ("1 · Title", [("master", 1)]),
+    ("1 · Response Codes", [("master", 1)]),
     ("2 · Why Single Agents Fail", [
         ("gif", dict(gif="2-why-single-agents-fail-happy-path.gif", notes="happy",
-                     title="Why Single Agents Fail · Happy Path",
+                     title="Why Single Agents Fail · One Ticket",
+                     lead="Agents suffer from overload too. With one BAU ticket, the agent stays focused: right query, right fix, sign-off.",
                      takeaway="Same agent, same five tools: one ticket, fixed and signed off in 4 LLM calls.")),
         ("gif", dict(gif="2-why-single-agents-fail-chaotic-path.gif", notes="chaos",
-                     title="Why Single Agents Fail · Chaotic Path",
+                     title="Why Single Agents Fail · Three Tickets",
+                     lead="Give the same agent three tickets in one session and its decisions get weaker: mixed-up data, repeated retries, a test edited until it passes.",
                      takeaway="A single agent is a monolith: it works for one task and fails like a monolith when you scale the work.")),
     ]),
-    ("3 · Thinking + Acting + Checking", [("master", 29), ("master", 30)]),   # mixed → sorted (Morph)
+    ("3 · Why Single Agents Fail – Part 2", [("master", 29), ("master", 30)]),   # mixed → sorted (Morph)
     ("4 · Failure Modes", [("master", 33)]),                                    # one slide, reveal on click
     ("5 · Root Cause", [("master", 34), ("master", 39)]),                       # before → all ticked (Morph)
     ("6 · Core Idea", [
         ("gif", dict(gif="6-core-idea.gif", notes=6,
                      title="The Core Idea of Multi-Agent Systems",
+                     lead="Give each agent one job and connect them with clear hand-offs. The shape can change (supervisor, pipeline, swarm); the building blocks stay the same.",
                      takeaway="A multi-agent system is a well-run team: one job each, clear hand-offs, a shared goal, and someone who signs off.")),
     ]),
 ]
@@ -83,7 +86,8 @@ NOTES_OVERRIDE = {
 
 # Design system (LOCKED.md)
 TEXT, PURPLE_F, PURPLE_O, PURPLE_T, FRAME = "2C2C2A", "EEEDFE", "534AB7", "3C3489", "D3D1C7"
-FONT = "Calibri"
+FONT = "Calibri"          # titles and diagram text
+BODY_FONT = "Arial"       # lead line and footer (house style)
 
 NS = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main",
       "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
@@ -135,7 +139,7 @@ def gif_size(path):
     return int.from_bytes(head[6:8], "little"), int.from_bytes(head[8:10], "little")
 
 
-def textbox(slide, text, x, y, w, h, size, bold=False, italic=False, color=TEXT, anchor=MSO_ANCHOR.TOP):
+def textbox(slide, text, x, y, w, h, size, bold=False, italic=False, color=TEXT, anchor=MSO_ANCHOR.TOP, font=FONT, align=None):
     tb = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
     tf = tb.text_frame
     tf.word_wrap = True
@@ -143,22 +147,45 @@ def textbox(slide, text, x, y, w, h, size, bold=False, italic=False, color=TEXT,
     tf.vertical_anchor = anchor
     run = tf.paragraphs[0].add_run()
     run.text = text
-    run.font.name, run.font.size, run.font.bold, run.font.italic = FONT, Pt(size), bold, italic
+    run.font.name, run.font.size, run.font.bold, run.font.italic = font, Pt(size), bold, italic
     run.font.color.rgb = RGBColor.from_string(color)
+    if align:
+        tf.paragraphs[0].alignment = align
     return tb
 
 
-def add_gif_slide(prs, gif_path, link, title, takeaway, notes):
+def house_style(slide, title, lead):
+    """Same header and footer as the master deck: bold title, thin rule, lead line, page number + RESTRICTED."""
+    textbox(slide, title, 0.45, 0.22, 12.4, 0.58, 26, bold=True, color="1A1A1A", anchor=MSO_ANCHOR.BOTTOM)
+    rule = slide.shapes.add_connector(1, Inches(0.45), Inches(0.88), Inches(12.88), Inches(0.88))   # 1 = straight line
+    rule.line.color.rgb = RGBColor.from_string("7F7F7F"); rule.line.width = Pt(0.75)
+    if lead:
+        textbox(slide, lead, 0.45, 0.97, 12.4, 0.48, 14, color="404040", font=BODY_FONT)
+    # Page number: a real slide-number field, so it stays right when slides move
+    num = textbox(slide, "", 6.17, 6.98, 1.0, 0.22, 10, color="595959", font=BODY_FONT, align=PP_ALIGN.CENTER)
+    p = num.text_frame.paragraphs[0]._p
+    for r in p.findall(f"{{{NS['a']}}}r"):
+        p.remove(r)
+    fld = etree.SubElement(p, f"{{{NS['a']}}}fld", id="{B6F15528-21DE-4FAA-801E-634DDDAF4B2B}", type="slidenum")
+    rpr = etree.SubElement(fld, f"{{{NS['a']}}}rPr", lang="en-US", sz="1000")
+    fill = etree.SubElement(rpr, f"{{{NS['a']}}}solidFill")
+    etree.SubElement(fill, f"{{{NS['a']}}}srgbClr", val="595959")
+    etree.SubElement(rpr, f"{{{NS['a']}}}latin", typeface=BODY_FONT)
+    etree.SubElement(fld, f"{{{NS['a']}}}t").text = "‹#›"
+    textbox(slide, "RESTRICTED", 5.67, 7.17, 2.0, 0.22, 8, color="7F7F7F", font=BODY_FONT, align=PP_ALIGN.CENTER)
+
+
+def add_gif_slide(prs, gif_path, link, title, lead, takeaway, notes):
     slide = prs.slides.add_slide(prs.slide_layouts[0])   # the master deck's only layout (no placeholders)
     slide.background.fill.solid()
     slide.background.fill.fore_color.rgb = RGBColor(255, 255, 255)
-    textbox(slide, title, 0.55, 0.3, 12.2, 0.65, 30, bold=True)
+    house_style(slide, title, lead)
 
-    # Fit the GIF into 12.2" × 5.3", keep its shape, centre it
+    # Fit the GIF into 12.4" × 4.75" below the lead line, keep its shape, centre it
     w0, h0 = gif_size(gif_path)
-    k = min(12.2 / w0, 5.3 / h0)
+    k = min(12.4 / w0, 4.75 / h0)
     w, h = w0 * k, h0 * k
-    x, y = (prs.slide_width / 914400 - w) / 2, 1.1
+    x, y = (prs.slide_width / 914400 - w) / 2, 1.58
 
     frame = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x - 0.06), Inches(y - 0.06), Inches(w + 0.12), Inches(h + 0.12))
     frame.adjustments[0] = 0.01
@@ -168,7 +195,7 @@ def add_gif_slide(prs, gif_path, link, title, takeaway, notes):
     slide.shapes.add_picture(gif_path, Inches(x), Inches(y), Inches(w), Inches(h))   # stored as-is: stays animated
 
     # "► Play animation" button: the text run carries the hyperlink
-    by = y + h + 0.2
+    by = y + h + 0.16
     btn = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(by), Inches(1.9), Inches(0.34))
     btn.adjustments[0] = 0.5
     btn.fill.solid(); btn.fill.fore_color.rgb = RGBColor.from_string(PURPLE_F)
@@ -324,7 +351,7 @@ def main():
                 dst = os.path.join(link_dir, ref["gif"])
                 if os.path.abspath(src) != os.path.abspath(dst):
                     shutil.copy2(src, dst)                      # COPY: GIF sits in gifs/ next to the deck
-                slide = add_gif_slide(prs, dst, "gifs/" + ref["gif"], ref["title"], ref["takeaway"], notes[ref["notes"]])
+                slide = add_gif_slide(prs, dst, "gifs/" + ref["gif"], ref["title"], ref.get("lead"), ref["takeaway"], notes[ref["notes"]])
             ordered.append(slide)
             ids.append(slide.slide_id)
         plan_ids.append((section, ids))
