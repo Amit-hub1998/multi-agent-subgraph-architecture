@@ -4,21 +4,21 @@ Team deck, built in parts. Each folder is one block of slides from the deck stru
 
 | Folder | Slides | Status |
 |---|---|---|
-| `slides-01-06/` | 1 Response Codes · 2 Why Single Agents Fail · 3 Why Single Agents Fail – Part 2 · 4 Failure Modes · 5 Root Cause · 6 Core Idea | 🔒 Locked (house style) |
+| `multi_agent_systems_slide_1_to_6/` | 1 Response Codes · 2 Why Single Agents Fail · 3 Why Single Agents Fail – Part 2 · 4 Failure Modes · 5 Root Cause · 6 Core Idea | 🔒 Locked (house style) |
 | `gif-builder/` | Tools: any PPT slides → GIF, and GIF → slide with a Play button + PDF | 🛠 Demo-ready |
-| `slides-14-16/` | 14 Common Mistakes · 15 How to Choose the Right Pattern · 16 Design Principles · 16a LangChain and LangGraph | ✏️ Draft (animations later) |
+| `multi_agent_systems_slide_14_to_16/` | 14 Common Mistakes · 15 How to Choose the Right Pattern · 16 Design Principles · 16a LangChain and LangGraph | ✏️ Draft (animations later) |
 
 ```
 multi-agent-deck/
-├── slides-01-06/
+├── multi_agent_systems_slide_1_to_6/
 │   ├── Slides-01-06.pptx          ← master: 43 slides, Morph — present this live
 │   ├── Slides-01-06-GIF.pptx      ← short version: 9 slides, GIFs + Morph
 │   ├── Slides-01-06-GIF.pdf       ← PDF export (keep gifs/ next to it)
 │   ├── gifs/                      ← one GIF per animation
 │   ├── SPEAKER_NOTES.md
 │   └── source/                    ← scripts + data to rebuild (see below)
-├── gif-builder/                   ← make_gif.py + add_gif_to_ppt.py (see gif-builder/README.md)
-└── slides-14-16/
+├── gif-builder/                   ← make_gif.py · add_gif_to_ppt.py · ppt_to_pdf.py · fix_pdf_links.py
+└── multi_agent_systems_slide_14_to_16/
     ├── Slides-14-16.pptx          ← 4 slides
     ├── SPEAKER_NOTES.md
     └── source/build_slides.js
@@ -48,22 +48,27 @@ flowchart TD
 *Purple: script you run · Teal: file · Grey: manual step.*
 
 ```bash
-cd slides-01-06/source
+cd multi_agent_systems_slide_1_to_6/source
 pip install pillow numpy python-pptx pymupdf     # + LibreOffice, or on Windows: pip install pywin32
 python pptx_to_gifs.py                           # → ../gifs/
 python build_gif_deck.py                         # → ../Slides-01-06-GIF.pptx
 ```
-Then open `Slides-01-06-GIF.pptx` → File → Export → Create PDF/XPS (not *Print to PDF*, which drops links). Share the PDF together with its `gifs` folder.
+Then make the PDF with working Play links in one step:
+```bash
+python ../../gif-builder/ppt_to_pdf.py ../Slides-01-06-GIF.pptx
+```
+(Or export it yourself in PowerPoint with File → Export → Create PDF/XPS, then run `python ../../gif-builder/fix_pdf_links.py ../Slides-01-06-GIF.pdf`.)
+Share the PDF together with its `gifs` folder.
 
 Rebuilding the master itself (only if the content changes): `node build_deck.js && python add_morph.py && python apply_notes.py` (needs `npm install pptxgenjs react react-dom react-icons sharp`).
 
 ## Slides 14–16
 
 ```bash
-cd slides-14-16/source
+cd multi_agent_systems_slide_14_to_16/source
 node build_slides.js                             # → ../Slides-14-16.pptx (notes from ../SPEAKER_NOTES.md)
 ```
 
 ## Design system
 
-House style (from the team deck): bold title + thin rule, one or two lead sentences, page number + RESTRICTED footer. White background; light fill + darker outline + darkest text from one colour family. Purple = control/thinking, teal = agents/acting/fixes, coral = checking/mistakes, grey = neutral. Full palette in `slides-01-06/source/LOCKED.md`.
+House style (from the team deck): bold title + thin rule, one or two lead sentences, page number + RESTRICTED footer. White background; light fill + darker outline + darkest text from one colour family. Purple = control/thinking, teal = agents/acting/fixes, coral = checking/mistakes, grey = neutral. Full palette in `multi_agent_systems_slide_1_to_6/source/LOCKED.md`.

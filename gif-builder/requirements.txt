@@ -2,4 +2,5 @@ pillow
 numpy
 python-pptx
 pymupdf
+pypdf
 pywin32; sys_platform == "win32"

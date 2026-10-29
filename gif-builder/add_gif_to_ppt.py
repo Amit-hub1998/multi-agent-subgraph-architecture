@@ -21,7 +21,9 @@ What it does:
 
 No VBA or macros: python-pptx edits the .pptx file directly.
 
-Install:  pip install python-pptx      (+ pywin32 on Windows, or LibreOffice, for the PDF export)
+Install:  pip install python-pptx pypdf      (+ pywin32 on Windows, or LibreOffice, for the PDF export)
+
+Exporting the PDF yourself from PowerPoint later?  Run  python fix_pdf_links.py <file>.pdf  afterwards.
 """
 
 import argparse
@@ -124,6 +126,14 @@ def place(prs, slide, gif_path, link, top_in):
 
 # ---------------------------------------------------------------- PDF export
 def export_pdf(pptx):
+    pdf = _export(pptx)
+    if pdf:
+        from fix_pdf_links import fix          # PowerPoint rewrites file links; put them back to gifs/<file>
+        fix(pdf, "gifs/")
+    return pdf
+
+
+def _export(pptx):
     pdf = os.path.splitext(pptx)[0] + ".pdf"
     if os.name == "nt":
         try:
