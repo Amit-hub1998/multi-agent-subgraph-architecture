@@ -46,13 +46,13 @@ The card on the right is the practical version: before you write any code, write
 ## Slide 16a — LangChain and LangGraph
 *~2.5 min*
 
-Two libraries, two jobs. LangChain gives you the building blocks: a common interface to models, prompts, tools, and structured output, plus create_agent for a ready-made agent loop. LangGraph is the orchestration layer: you describe your system as a graph of nodes sharing a state, and it runs it, with loops, branching, persistence and human-in-the-loop built in.
+Both libraries do the same basic job: they connect AI steps into a workflow, using models, prompts, tools and structured output. The difference is the shape. LangChain runs the steps in a fixed sequence: A, then B, then C, each once. That's ideal for pipelines whose steps never change order. LangGraph connects the steps as a graph of nodes sharing a state, so the work can loop back, branch, run in parallel, save its progress and pause for a human.
 
 The two core ideas are node and graph. A node is one job: a Python function that reads the state and returns the keys it changed. Edges are the hand-offs. A conditional edge is a router: here the checker's status decides whether we finish or go back to the worker. That's exactly the explicit hand-off from slide 5, replacing the finish_reason if/else.
 
 The code is the whole thing: a state, two nodes, three edges, compile, invoke. recursion_limit is our bounded execution. And a compiled graph can itself be used as a node, which is how subgraphs work.
 
-**Close:** LangChain for the parts, LangGraph for the wiring. Every pattern in this deck is a LangGraph graph.
+**Close:** Both connect the steps: LangChain in a fixed sequence, LangGraph as a graph. Every pattern in this deck is a LangGraph graph.
 
 ---
 

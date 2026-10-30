@@ -5,6 +5,7 @@ Team deck, built in parts. Each folder is one block of slides from the deck stru
 | Folder | Slides | Status |
 |---|---|---|
 | `multi_agent_systems_slide_1_to_6/` | 1 Response Codes · 2 Why Single Agents Fail · 3 Why Single Agents Fail – Part 2 · 4 Failure Modes · 5 Root Cause · 6 Core Idea | 🔒 Locked (house style) |
+| `multi_agent_systems_simple/` | Simpler static version for a wider audience, built chapter by chapter. Slides 2–6 and 14–16 as on the team sheet, static: Why Single Agents Fail · Part 2 · Failure Modes · Root Cause · Core Idea · Common Mistakes · Choose the Right Pattern · Design Principles · 16a LangChain and LangGraph (2 slides, no code) | 🚧 In progress |
 | `gif-builder/` | Tools: any PPT slides → GIF, and GIF → slide with a Play button + PDF | 🛠 Demo-ready |
 | `multi_agent_systems_slide_14_to_16/` | 14 Common Mistakes · 15 How to Choose the Right Pattern · 16 Design Principles · 16a LangChain and LangGraph · 16b Reading the Graph (click-through) | ✅ Ready (house style; Morph click-through on 16b) |
 
@@ -17,6 +18,7 @@ multi-agent-deck/
 │   ├── gifs/                      ← one GIF per animation
 │   ├── SPEAKER_NOTES.md
 │   └── source/                    ← scripts + data to rebuild (see below)
+├── multi_agent_systems_simple/     ← Multi-Agent-Systems-Simple.pptx (static, no animation) + notes + source/build_simple.js
 ├── gif-builder/                   ← make_gif.py · add_gif_to_ppt.py · ppt_to_pdf.py · fix_pdf_links.py
 └── multi_agent_systems_slide_14_to_16/
     ├── Slides-14-16.pptx          ← 11 slides: 14, 15, 16, 16a + 7 click-through 16b slides

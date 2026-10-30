@@ -195,23 +195,23 @@ function notes() {
   pres.addSection({ title: "16a · LangChain and LangGraph" });
   {
     const sl = newSlide("16a · LangChain and LangGraph");
-    header(sl, "LangChain and LangGraph", "LangChain gives you the parts: models, prompts and tools. LangGraph wires them into a graph with one shared state, so loops, checks and human approval are built in.", "16a");
+    header(sl, "LangChain and LangGraph", "Both connect AI steps into a workflow. LangChain runs them in a fixed sequence; LangGraph connects them as a graph, so steps can loop, branch and pause for a person.", "16a");
     // Left: the two libraries
     const lx = 0.55, lw = 3.85;
     box(sl, "", lx, 1.5, lw, 2.15, { col: C.purple, r: 0.1, name: "!!lcbox" });
     sl.addImage({ path: await icon("TbPuzzle", C.purple.o), x: lx + 0.2, y: 1.66, w: 0.34, h: 0.34, objectName: "!!lcic" });
-    txt(sl, "LangChain · the building blocks", lx + 0.62, 1.64, lw - 0.75, 0.4, { fs: 15, bold: true, color: C.purple.t, valign: "middle", name: "!!lch" });
+    txt(sl, "LangChain · sequential chains", lx + 0.62, 1.64, lw - 0.75, 0.4, { fs: 15, bold: true, color: C.purple.t, valign: "middle", name: "!!lch" });
     txt(sl, [
+      { text: "Steps run in a fixed sequence: A → B → C", options: { bullet: true, breakLine: true } },
       { text: "One interface for chat models (e.g. ChatGroq, ChatAnthropic)", options: { bullet: true, breakLine: true } },
-      { text: "Prompts, tools (@tool) and structured output", options: { bullet: true, breakLine: true } },
-      { text: "create_agent: a ready-made agent loop", options: { bullet: true } },
+      { text: "Prompts, tools (@tool) and structured output", options: { bullet: true } },
     ], lx + 0.2, 2.1, lw - 0.35, 1.45, { fs: 12.5, color: TEXT, psa: 4, name: "!!lcb" });
     box(sl, "", lx, 3.85, lw, 2.15, { col: C.teal, r: 0.1, name: "!!lgbox" });
     sl.addImage({ path: await icon("TbGitBranch", C.teal.o), x: lx + 0.2, y: 4.01, w: 0.34, h: 0.34, objectName: "!!lgic" });
-    txt(sl, "LangGraph · the orchestration", lx + 0.62, 3.99, lw - 0.75, 0.4, { fs: 15, bold: true, color: C.teal.t, valign: "middle", name: "!!lgh" });
+    txt(sl, "LangGraph · graphs", lx + 0.62, 3.99, lw - 0.75, 0.4, { fs: 15, bold: true, color: C.teal.t, valign: "middle", name: "!!lgh" });
     txt(sl, [
-      { text: "Describe the system as nodes + edges over a shared state", options: { bullet: true, breakLine: true } },
-      { text: "Loops and branching (conditional edges)", options: { bullet: true, breakLine: true } },
+      { text: "Steps in any order: loops, branches, parallel", options: { bullet: true, breakLine: true } },
+      { text: "Nodes + edges over a shared state", options: { bullet: true, breakLine: true } },
       { text: "Checkpoints: resume, and pause for a human", options: { bullet: true } },
     ], lx + 0.2, 4.45, lw - 0.35, 1.45, { fs: 12.5, color: TEXT, psa: 4, name: "!!lgb" });
 
